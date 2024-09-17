@@ -7,8 +7,8 @@ export default function Clock() {
   const [dateStr, setDateStr] = useState("");
 
   const update = () => {
-    const date = new Date(Date.now());
-    
+    const date = new Date();
+
     setTimeStr(
       date.toLocaleTimeString("en-GB", {
         timeZone: "Asia/Seoul",
@@ -29,11 +29,12 @@ export default function Clock() {
 
   useEffect(() => {
     update();
-    setInterval(update, 1000);
+    const interval = setInterval(update, 1000);
+    return () => clearInterval(interval);
   }, []);
 
   return (
-    <div className="flex flex-col justify-center items-center h-screen p-8">
+    <div className="flex flex-col justify-center items-center h-full p-8">
       <div className="flex basis-3/4 justify-start items-center w-full">
         <div className="text-9xl font-bold">
           <div>{timeStr}</div>
