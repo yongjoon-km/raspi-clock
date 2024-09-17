@@ -94,7 +94,7 @@ async function fetchForcasts() {
 
   try {
     const forcasts = (await response.json()).response.body.items.item;
-    return forcasts;
+    return forcasts.filter((x) => x.category === "TMP").slice(0, 5);
   } catch {
     console.error("error fetching data", response);
     return [];
