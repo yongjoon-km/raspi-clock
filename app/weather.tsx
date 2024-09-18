@@ -73,7 +73,7 @@ async function fetchForcasts() {
   };
 
   const baseUrl =
-    "https://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getVilageFcst";
+    "https://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getUltraSrtFcst";
   // WEATHER_API_KEY can be used in client side code because this app will not be public
   const key = process.env.NEXT_PUBLIC_WEATHER_API_KEY;
   const params = {
@@ -94,7 +94,7 @@ async function fetchForcasts() {
 
   try {
     const forcasts = (await response.json()).response.body.items.item;
-    return forcasts.filter((x) => x.category === "TMP").slice(0, 5);
+    return forcasts.filter((x) => x.category === "T1H").slice(0, 5);
   } catch {
     console.error("error fetching data", response);
     return [];
