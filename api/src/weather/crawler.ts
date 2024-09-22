@@ -17,6 +17,13 @@ type WeatherData = {
 export async function run(): Promise<void> {
   let baseDate: string = "20240922";
   let baseTime: string = "1900";
+  await getWeatherData(baseDate, baseTime);
+}
+
+async function getWeatherData(
+  baseDate: string,
+  baseTime: string
+): Promise<WeatherData[]> {
   const apiResponse: WeatherApiResponse[] = await fetchWeather(
     baseDate,
     baseTime
@@ -24,9 +31,10 @@ export async function run(): Promise<void> {
 
   const result = apiResponse.reduce<{ [key: WeatherKey]: WeatherData }>(
     (agg, curr) => {
-      if (agg[curr.fcstTime] === undefined) {
-        agg[curr.fcstTime] = {
-          fcstTime: curr.fcstTime,
+      const forcastTime = curr.fcstTime;
+      if (agg[forcastTime] === undefined) {
+        agg[forcastTime] = {
+          fcstTime: forcastTime,
           temp: "",
           sky: "unknown",
         };
@@ -34,38 +42,32 @@ export async function run(): Promise<void> {
 
       switch (curr.category) {
         case "T1H":
-          agg[curr.fcstTime].temp = curr.fcstValue;
+          agg[forcastTime].temp = curr.fcstValue;
           break;
         case "RN1":
-          if (
-            curr.fcstValue === "강수없음" ||
-            curr.fcstValue === "0" ||
-            curr.fcstValue === "null"
-          ) {
-            break;
-          } else {
-            agg[curr.fcstTime].sky = "heavy rain";
+          if (!["강수없음", "0", "null"].includes(curr.fcstValue)) {
+            agg[forcastTime].sky = "heavy rain";
           }
           break;
         case "PTY":
           if (curr.fcstValue === "1" || curr.fcstValue === "2") {
-            agg[curr.fcstTime].sky = "heavy rain";
+            agg[forcastTime].sky = "heavy rain";
           }
           if (curr.fcstValue === "5" || curr.fcstValue === "6") {
-            agg[curr.fcstTime].sky = "few rain";
+            agg[forcastTime].sky = "few rain";
           }
           if (curr.fcstValue === "3" || curr.fcstValue === "7") {
-            agg[curr.fcstTime].sky = "snow";
+            agg[forcastTime].sky = "snow";
           }
           break;
         case "SKY":
-          if (agg[curr.fcstTime].sky !== "unknown") {
+          if (agg[forcastTime].sky !== "unknown") {
             break;
           }
           if (parseInt(curr.fcstValue) <= 5) {
-            agg[curr.fcstTime].sky = "sun";
+            agg[forcastTime].sky = "sun";
           } else {
-            agg[curr.fcstTime].sky = "crowd";
+            agg[forcastTime].sky = "crowd";
           }
           break;
       }
@@ -74,14 +76,5 @@ export async function run(): Promise<void> {
     {}
   );
 
-  console.log(Object.values(result));
-  /**
-   * [
-   *   {
-   *     "baseTime": "0100",
-   *     "temp": "25",
-   *     "sky": "sun" | "wind" | "crowd" | "few rain" | "heavy rain" | "snow"
-   *   }
-   * ]
-   */
+  return Object.values(result);
 }
