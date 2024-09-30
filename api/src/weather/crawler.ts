@@ -18,6 +18,7 @@ export async function run(): Promise<void> {
   let baseDate: string = "20240922";
   let baseTime: string = "1900";
   await getWeatherData(baseDate, baseTime);
+  // Save to sqlite3
 }
 
 async function getWeatherData(
